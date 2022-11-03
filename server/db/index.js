@@ -16,7 +16,7 @@ const reviews_query = `DO $$
   BEGIN
   IF (NOT EXISTS(SELECT 1 FROM reviews)) THEN
     COPY reviews(id, product_id, rating, date_temp, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
-    FROM '/Users/joseortiz/HackReactor/SDC/Reviews-API-Service/data/reviews.csv'
+    FROM '${process.env.DB_ROOT}/data/reviews.csv'
     DELIMITER ','
     CSV HEADER;
     update reviews set date = to_timestamp(date_temp/1000);
@@ -29,7 +29,7 @@ const characteristics_query = `DO $$
   BEGIN
   IF (NOT EXISTS(SELECT 1 FROM characteristics)) THEN
     COPY characteristics(id,product_id,name)
-    FROM '/Users/joseortiz/HackReactor/SDC/Reviews-API-Service/data/characteristics.csv'
+    FROM '${process.env.DB_ROOT}/data/characteristics.csv'
     DELIMITER ','
     CSV HEADER;
   END IF;
@@ -40,7 +40,7 @@ const review_characteristics_query = `DO $$
   BEGIN
   IF (NOT EXISTS(SELECT 1 FROM review_characteristics)) THEN
     COPY review_characteristics(id,characteristic_id,review_id,value)
-    FROM '/Users/joseortiz/HackReactor/SDC/Reviews-API-Service/data/characteristic_reviews.csv'
+    FROM '${process.env.DB_ROOT}/data/characteristic_reviews.csv'
     DELIMITER ','
     CSV HEADER;
   END IF;
@@ -51,7 +51,7 @@ const review_photos_query = `DO $$
   BEGIN
   IF (NOT EXISTS(SELECT 1 FROM photos)) THEN
     COPY photos(id,review_id,url)
-    FROM '/Users/joseortiz/HackReactor/SDC/Reviews-API-Service/data/reviews_photos.csv'
+    FROM '${process.env.DB_ROOT}/data/reviews_photos.csv'
     DELIMITER ','
     CSV HEADER;
   END IF;
