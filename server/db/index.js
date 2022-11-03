@@ -21,6 +21,7 @@ const reviews_query = `DO $$
     CSV HEADER;
     update reviews set date = to_timestamp(date_temp/1000);
     alter TABLE reviews drop COLUMN date_temp;
+    PERFORM setval(pg_get_serial_sequence('reviews', 'review_id'), coalesce(max(review_id),0) + 1, false) FROM reviews;
   END IF;
   END $$;
   `;
@@ -32,6 +33,7 @@ const characteristics_query = `DO $$
     FROM '${process.env.DB_ROOT}/data/characteristics.csv'
     DELIMITER ','
     CSV HEADER;
+    PERFORM setval(pg_get_serial_sequence('characteristics', 'id'), coalesce(max(id),0) + 1, false) FROM characteristics;
   END IF;
   END $$;
   `;
@@ -43,6 +45,7 @@ const review_characteristics_query = `DO $$
     FROM '${process.env.DB_ROOT}/data/characteristic_reviews.csv'
     DELIMITER ','
     CSV HEADER;
+    PERFORM setval(pg_get_serial_sequence('review_characteristics', 'id'), coalesce(max(id),0) + 1, false) FROM review_characteristics;
   END IF;
   END $$;
 `;
@@ -54,6 +57,7 @@ const review_photos_query = `DO $$
     FROM '${process.env.DB_ROOT}/data/reviews_photos.csv'
     DELIMITER ','
     CSV HEADER;
+    PERFORM setval(pg_get_serial_sequence('photos', 'id'), coalesce(max(id),0) + 1, false) FROM photos;
   END IF;
   END $$;
   `;

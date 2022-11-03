@@ -1,10 +1,23 @@
+/* Delete database and create a new one
+UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'reviews_db';
+
+SELECT pg_terminate_backend(pg_stat_activity.pid)
+FROM pg_stat_activity
+WHERE pg_stat_activity.datname = 'reviews_db';
+
+DROP DATABASE reviews_db;
+CREATE DATABASE reviews_db;*/
+
+/* create a new database if it doesn't exist */
+SELECT 'CREATE DATABASE reviews_db'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'reviews_db')\gexec
 \c reviews_db;
 
 CREATE TABLE IF NOT EXISTS reviews (
   review_id SERIAL PRIMARY KEY,
   product_id varchar(7),
   rating INT,
-  date timestamp with time zone,
+  date timestamp with time zone default current_timestamp,
   summary TEXT,
   body TEXT,
   recommend BOOLEAN,
@@ -12,7 +25,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   reviewer_name TEXT,
   reviewer_email TEXT,
   response TEXT,
-  helpfulness INT,
+  helpfulness INT DEFAULT 0,
   date_temp double precision
 );
 
