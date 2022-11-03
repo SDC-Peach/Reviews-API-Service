@@ -1,16 +1,7 @@
-UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'reviews_db';
-
-SELECT pg_terminate_backend(pg_stat_activity.pid)
-FROM pg_stat_activity
-WHERE pg_stat_activity.datname = 'reviews_db';
-
-DROP DATABASE reviews_db;
-CREATE DATABASE reviews_db;
-
 \c reviews_db;
 
-CREATE TABLE reviews (
-  id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS reviews (
+  review_id SERIAL PRIMARY KEY,
   product_id varchar(7),
   rating INT,
   date timestamp with time zone,
@@ -25,8 +16,8 @@ CREATE TABLE reviews (
   date_temp double precision
 );
 
-CREATE TABLE reviews_meta (
-  id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS reviews_meta (
+  id SERIAL PRIMARY KEY,
   one_star INT DEFAULT 0,
   two_star INT DEFAULT 0,
   three_star INT DEFAULT 0,
@@ -36,8 +27,8 @@ CREATE TABLE reviews_meta (
   not_recommended INT DEFAULT 0
 );
 
-CREATE TABLE characteristics (
-  id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS characteristics (
+  id SERIAL PRIMARY KEY,
   product_id varchar(7),
   name TEXT,
   avg_rating double precision,
@@ -46,18 +37,18 @@ CREATE TABLE characteristics (
   FOREIGN KEY(reviews_meta_id) REFERENCES reviews_meta(id) */
 );
 
-CREATE TABLE photos (
-  id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS photos (
+  id SERIAL PRIMARY KEY,
   review_id INTEGER,
   url TEXT,
-  FOREIGN KEY(review_id) REFERENCES reviews(id)
+  FOREIGN KEY(review_id) REFERENCES reviews(review_id)
 );
 
-CREATE TABLE review_characteristics (
-  id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS review_characteristics (
+  id SERIAL PRIMARY KEY,
   characteristic_id INTEGER,
   review_id INTEGER,
   value INT,
-  FOREIGN KEY(review_id) REFERENCES reviews(id),
+  FOREIGN KEY(review_id) REFERENCES reviews(review_id),
   FOREIGN KEY(characteristic_id) REFERENCES characteristics(id)
 );
