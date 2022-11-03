@@ -114,4 +114,8 @@ pool.query(reviews_query)
   })
   .catch(e => console.error(e.stack))
 
+  module.exports = {
+    pool
+  }
+
 

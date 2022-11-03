@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./server/app.js"
+    "start": "npx nodemon --watch server ./server/app.js"
   },
   "repository": {
     "type": "git",
