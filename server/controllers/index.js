@@ -41,8 +41,60 @@ const getReviews = (req, res) => {
 
 }
 const getReviewsMeta = (req, res) => {
-  console.log('Getting Reviews Meta');
-  res.send('Getting Reviews Meta');
+  console.log('Getting Reviews Meta', req.query);
+  const product_id = String(req.query.product_id);
+  let metaResult = {
+    product_id,
+    "ratings": {},
+    "recommended": {},
+    "characteristics": {},
+  };
+  let ratingsPromise = [];
+  for (let i = 1; i <= 5; i++) {
+    let query = `SELECT COUNT (rating) FROM reviews WHERE rating=${i} AND product_id='${product_id}'`;
+    ratingsPromise.push(pool.query(query));
+  }
+
+  Promise.all(ratingsPromise)
+    .then((result) => {
+      result.forEach((rating, i) => {
+        if (rating.rows[0].count > 0) {
+          metaResult.ratings[i+ 1] = rating.rows[0].count;
+        };
+      })
+      return pool.query(`SELECT COUNT (recommend) FROM reviews WHERE recommend=false AND product_id='${product_id}';`)
+    })
+    .then((result) => {
+      metaResult.recommended.false = result.rows[0].count;
+      return pool.query(`SELECT COUNT (recommend) FROM reviews WHERE recommend=true AND product_id='${product_id}';`)
+    })
+    .then((result) => {
+      metaResult.recommended.true = result.rows[0].count;
+      return pool.query(`SELECT rc.value, c.name, c.id FROM review_characteristics rc INNER JOIN characteristics c ON rc.characteristic_id=c.id WHERE c.product_id='${product_id}';`)
+    })
+    .then((result) => {
+      let sums = {};
+      let totals = {};
+      let names = {};
+      result.rows.forEach((characteristic) => {
+        if (sums[characteristic.id] === undefined) {
+          sums[characteristic.id] = characteristic.value;
+          totals[characteristic.id] = 1;
+          names[characteristic.id] = characteristic.name;
+        } else {
+          sums[characteristic.id] += characteristic.value;
+          totals[characteristic.id] += 1;
+        }
+      })
+      for (const id in sums) {
+        metaResult.characteristics[names[id]] = {
+          'id': id,
+          'value': (sums[id]/totals[id]).toFixed(16)
+        }
+      }
+      res.send(metaResult);
+    })
+    .catch(e => console.error(e.stack))
 }
 const addReview = (req, res) => {
   console.log('Add Review', req.body);
