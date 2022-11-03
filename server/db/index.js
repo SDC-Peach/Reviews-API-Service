@@ -59,13 +59,6 @@ const review_photos_query = `DO $$
   `;
 
 const check_reviews_meta = `SELECT CASE WHEN EXISTS(SELECT 1 FROM reviews_meta) THEN 1 ELSE 0 END;`
-// SELECT EXISTS (
-//   SELECT FROM pg_tables
-//   WHERE  schemaname = '${process.env.DB_DATABASE}'
-//   AND    tablename  = 'reviews_meta'
-//   AND
-//   );
-//`
 
 //get all the product ids
 const products_query = `SELECT DISTINCT product_id FROM characteristics;`;
