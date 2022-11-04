@@ -31,7 +31,6 @@ const getReviews = (req, res) => {
       return Promise.all(photosPromise);
     })
     .then((result) => {
-      console.log(result);
       reviews.results.forEach((review, i) => {
         review.photos = result[i].rows;
       })
