@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const db = require('./db');
 const {
@@ -10,7 +11,7 @@ const {
 var app = express();
 
 // Set what we are listening on.
-app.set('port', 1234);
+app.set('port', process.env.SERVER_PORT);
 
 // Logging and parsing
 app.use(express.json());
@@ -19,7 +20,7 @@ app.use(express.json());
 
 // Routes
 app.get('/', (request, response) => {
-  response.send('Reviews API')
+  response.send('Reviews API');
 });
 app.get('/reviews/', getReviews);
 app.get('/reviews/meta', getReviewsMeta);
