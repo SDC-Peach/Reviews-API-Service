@@ -6,15 +6,16 @@ const getReviews = (req, res) => {
   reviews.product = req.query.product_id || 1;
   reviews.page = Number(req.query.page) || 1;
   reviews.count = Number(req.query.count) || 5;
-  reviews.sort = req.query.sort || 'date';
+  let sort = req.query.sort || 'date';
+  reviews.sort = req.query.sort;
   reviews.results = [];
 
   const limit = reviews.page * reviews.count;
-  if (reviews.sort === 'newest' || reviews.sort === 'relevant') {
-    reviews.sort = 'date';
+  if (sort === 'newest' || sort === 'relevant') {
+    sort = 'date';
   }
   const query = {
-    text: `SELECT review_id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness FROM reviews WHERE product_id=$1 ORDER BY ${reviews.sort} DESC, date DESC LIMIT $2;`,
+    text: `SELECT review_id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness FROM reviews WHERE product_id=$1 AND reported=false ORDER BY ${sort} DESC, date DESC LIMIT $2;`,
     values: [reviews.product, limit],
   }
   pool.query(query)
@@ -69,12 +70,16 @@ const getReviewsMeta = (req, res) => {
     })
     .then((result) => {
       metaResult.recommended.true = result.rows[0].count;
-      return pool.query(`SELECT rc.value, c.name, c.id FROM review_characteristics rc INNER JOIN characteristics c ON rc.characteristic_id=c.id WHERE c.product_id='${product_id}';`)
+      return pool.query(`SELECT rc.value, c.name, c.id, rc.review_id
+      FROM review_characteristics rc
+      INNER JOIN characteristics c ON rc.characteristic_id=c.id
+      WHERE c.product_id='${product_id}';`)//TODO check if reported
     })
     .then((result) => {
       let sums = {};
       let totals = {};
       let names = {};
+      console.log(result.rows);
       result.rows.forEach((characteristic) => {
         if (sums[characteristic.id] === undefined) {
           sums[characteristic.id] = characteristic.value;
@@ -85,6 +90,7 @@ const getReviewsMeta = (req, res) => {
           totals[characteristic.id] += 1;
         }
       })
+      console.log('-----sums:', sums, 'totals:', totals);
       for (const id in sums) {
         metaResult.characteristics[names[id]] = {
           'id': id,
