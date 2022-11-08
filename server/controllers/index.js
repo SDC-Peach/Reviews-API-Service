@@ -15,7 +15,7 @@ const getReviews = (req, res) => {
     sort = 'date';
   }
   const query = {
-    text: `SELECT review_id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness FROM reviews WHERE product_id=$1 AND reported=false ORDER BY ${sort} DESC, date DESC LIMIT $2;`,
+    text: `SELECT review_id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness FROM reviews WHERE product_id=$1 AND reported=false LIMIT $2;`,// ORDER BY ${sort} DESC, date DESC LIMIT $2;`,
     values: [reviews.product, limit],
   }
   pool.query(query)
@@ -37,7 +37,10 @@ const getReviews = (req, res) => {
       })
       res.send(reviews);
     })
-    .catch(e => console.error(e.stack))
+    .catch(e => {
+      console.error(e.stack);
+      res.status(500).json(e);
+    });
 
 }
 const getReviewsMeta = (req, res) => {
@@ -51,7 +54,7 @@ const getReviewsMeta = (req, res) => {
   };
   let ratingsPromise = [];
   for (let i = 1; i <= 5; i++) {
-    let query = `SELECT COUNT (rating) FROM reviews WHERE rating=${i} AND product_id='${product_id}'`;
+    let query = `SELECT COUNT (rating) FROM reviews WHERE rating=${i} AND product_id='${product_id}' AND reported=false`;
     ratingsPromise.push(pool.query(query));
   }
 
@@ -59,14 +62,14 @@ const getReviewsMeta = (req, res) => {
     .then((result) => {
       result.forEach((rating, i) => {
         if (rating.rows[0].count > 0) {
-          metaResult.ratings[i+ 1] = rating.rows[0].count;
+          metaResult.ratings[i + 1] = rating.rows[0].count;
         };
       })
-      return pool.query(`SELECT COUNT (recommend) FROM reviews WHERE recommend=false AND product_id='${product_id}';`)
+      return pool.query(`SELECT COUNT (recommend) FROM reviews WHERE recommend=false AND product_id='${product_id}' AND reported=false;`)
     })
     .then((result) => {
       metaResult.recommended.false = result.rows[0].count;
-      return pool.query(`SELECT COUNT (recommend) FROM reviews WHERE recommend=true AND product_id='${product_id}';`)
+      return pool.query(`SELECT COUNT (recommend) FROM reviews WHERE recommend=true AND product_id='${product_id}' AND reported=false;`)
     })
     .then((result) => {
       metaResult.recommended.true = result.rows[0].count;
@@ -79,7 +82,6 @@ const getReviewsMeta = (req, res) => {
       let sums = {};
       let totals = {};
       let names = {};
-      console.log(result.rows);
       result.rows.forEach((characteristic) => {
         if (sums[characteristic.id] === undefined) {
           sums[characteristic.id] = characteristic.value;
@@ -90,16 +92,18 @@ const getReviewsMeta = (req, res) => {
           totals[characteristic.id] += 1;
         }
       })
-      console.log('-----sums:', sums, 'totals:', totals);
       for (const id in sums) {
         metaResult.characteristics[names[id]] = {
           'id': id,
-          'value': (sums[id]/totals[id]).toFixed(16)
+          'value': (sums[id] / totals[id]).toFixed(16)
         }
       }
       res.send(metaResult);
     })
-    .catch(e => console.error(e.stack))
+    .catch(e => {
+      console.error(e.stack);
+      res.status(500).json(e);
+    });
 }
 const addReview = (req, res) => {
   console.log('Add Review', req.body);
@@ -137,7 +141,10 @@ const addReview = (req, res) => {
       res.status(201);
       res.send('Adding Review');
     })
-    .catch(e => console.error(e.stack))
+    .catch(e => {
+      console.error(e.stack);
+      res.status(500).json(e);
+    });
 }
 const markReviewHelpful = (req, res) => {
   console.log('Marking Review Helpful', req.body);
@@ -150,8 +157,12 @@ const markReviewHelpful = (req, res) => {
       res.status(204);
       res.send('Marking Reviews helpful');
     })
-    .catch(e => console.error(e.stack))
+    .catch(e => {
+      console.error(e.stack);
+      res.status(500).json(e);
+    });
 }
+
 const reportReview = (req, res) => {
   console.log('Reporting Review', req.body);
   const query = {
@@ -163,7 +174,10 @@ const reportReview = (req, res) => {
       res.status(204);
       res.send('Reporting reviews');
     })
-    .catch(e => console.error(e.stack))
+    .catch(e => {
+      console.error(e.stack);
+      res.status(500).json(e);
+    });
 }
 
 module.exports = {

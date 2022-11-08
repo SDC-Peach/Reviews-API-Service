@@ -1,11 +1,11 @@
 require("dotenv").config();
 const { Client, Pool } = require('pg');
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
 });
 
 const insert_query = {
@@ -73,7 +73,7 @@ const reviews_meta_query = (product_id) => {
   ON CONFLICT DO NOTHING;
   `,
   values: [product_id]};
-}
+};
 
 pool.query(reviews_query)
   .then(res => {

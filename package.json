@@ -8,7 +8,9 @@
     "test": "npx jest",
     "start": "npx nodemon --watch server ./server/app.js",
     "build-db": "psql -U joseortiz -a -f server/schema.sql",
-    "build-test-db": "psql -U joseortiz -a -f test/schema_test.sql"
+    "test-query": "psql -U joseortiz -a -f server/test_queries.sql",
+    "build-test-db": "psql -U joseortiz -a -f test/schema_test.sql",
+    "test-k6": "k6 run --out statsd /Users/joseortiz/HackReactor/SDC/Reviews-API-Service/tests/load_testing_script.js"
   },
   "repository": {
     "type": "git",

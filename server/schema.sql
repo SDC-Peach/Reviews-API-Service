@@ -65,3 +65,15 @@ CREATE TABLE IF NOT EXISTS review_characteristics (
   FOREIGN KEY(review_id) REFERENCES reviews(review_id),
   FOREIGN KEY(characteristic_id) REFERENCES characteristics(id)
 );
+
+-- Adding index for optimization
+CREATE INDEX IF NOT EXISTS reviews_product_id_reported_idx
+ON reviews (product_id, reported);
+CREATE INDEX IF NOT EXISTS reviews_date_desc_index ON reviews (date DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS reviews_helpfulness_desc_index ON reviews (helpfulness DESC);
+CREATE INDEX IF NOT EXISTS characteristics_product_id_idx
+ON characteristics (product_id);
+CREATE INDEX IF NOT EXISTS review_characteristics_characteristic_id_idx
+ON review_characteristics (characteristic_id);
+CREATE INDEX IF NOT EXISTS photos_review_id_idx
+ON photos (review_id);

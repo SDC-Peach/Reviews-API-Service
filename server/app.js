@@ -11,7 +11,7 @@ const {
 var app = express();
 
 // Set what we are listening on.
-app.set('port', process.env.SERVER_PORT);
+app.set('port', process.env.SERVER_PORT || 3000);
 
 // Logging and parsing
 app.use(express.json());
