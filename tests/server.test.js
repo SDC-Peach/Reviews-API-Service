@@ -1,36 +1,21 @@
 require("dotenv").config();
-const { Client, Pool } = require('pg');
+const { Pool } = require('pg');
 const { add_review_data } = require('./test-data.js');
 const axios = require('axios');
 
 const API_URL = `http://127.0.0.1:${process.env.SERVER_PORT}`;
 
-jest.setTimeout(20000);
+jest.setTimeout(30000);
 
 describe('SDC Reviews Service', () => {
   const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    user: process.env.PGUSER,
+    host: process.env.PGHOST,
+    database: process.env.PGDATABASE,
+    password: process.env.PGPASSWORD,
+    port: process.env.PGPORT,
   });
   let review_id = 0;
-
-  beforeAll(() => {
-    console.log('before all...');
-    // return pool.query('TRUNCATE TABLE reviews CASCADE;')
-    //   .then((res) => {
-    //     return pool.query('SELECT * FROM reviews;')
-    //   })
-    //   .then((res) => {
-    //     return pool.query('TRUNCATE TABLE reviews_meta CASCADE;')
-    //   })
-    //   .then((res) => {
-    //     return pool.query('TRUNCATE TABLE characteristics CASCADE;');
-    //   })
-    //   .catch(e => console.error(e.stack));
-  }, 6500);
 
   afterAll(() => {
     console.log('review id', review_id);
@@ -43,6 +28,9 @@ describe('SDC Reviews Service', () => {
       .then(() => {
         return pool.query(`DELETE FROM reviews WHERE review_id=${review_id};
       SELECT setval(pg_get_serial_sequence('reviews', 'review_id'), coalesce(max(review_id),0) + 1, false) FROM reviews;`);
+      })
+      .then(() => {
+        pool.end();
       })
       .catch(e => console.error(e.stack));
   });
