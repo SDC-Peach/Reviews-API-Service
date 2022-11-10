@@ -15,8 +15,6 @@ app.set('port', process.env.SERVER_PORT || 3000);
 
 // Logging and parsing
 app.use(express.json());
-// Serve the client files
-//app.use(express.static(__dirname + '/../client'));
 
 // Routes
 app.get('/', (request, response) => {
@@ -27,6 +25,11 @@ app.get('/reviews/meta', getReviewsMeta);
 app.post('/reviews', addReview);
 app.put('/reviews/:review_id/helpful', markReviewHelpful);
 app.put('/reviews/:review_id/report/', reportReview);
+
+//loader.io
+app.get(`/${process.env.LOADER_TOKEN}`, (req, res) => {
+  res.send(process.env.LOADER_TOKEN);
+});
 
 
 // If we are being run directly, run the server.
