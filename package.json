@@ -7,6 +7,8 @@
   "scripts": {
     "test": "npx jest",
     "start": "npx nodemon --watch server ./server/app.js",
+    "start-pm2": "pm2 start ./server/app.js --watch",
+    "stop-pm2": "pm2 stop ./server/app.js",
     "build-db": "psql -U joseortiz -a -f server/schema.sql",
     "test-query": "psql -U joseortiz -a -f server/test_queries.sql",
     "build-test-db": "psql -U joseortiz -a -f test/schema_test.sql",
