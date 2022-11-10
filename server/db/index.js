@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Client, Pool } = require('pg');
+const { Pool } = require('pg');
 const pool = new Pool({
   user: process.env.PGUSER,
   host: process.env.PGHOST,
@@ -8,10 +8,6 @@ const pool = new Pool({
   port: process.env.PGPORT,
 });
 
-const insert_query = {
-  text: 'INSERT INTO reviews(id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
-  values: [1, 1, 5, 1596080481467, 'This product was great!', 'I really did or did not like this product based on whether it was sustainably sourced.  Then I found out that its made from nothing at all.', true, false, 'funtime', 'first.last@gmail.com', null, 8],
-}
 const reviews_query = `DO $$
   BEGIN
   IF (NOT EXISTS(SELECT 1 FROM reviews)) THEN
@@ -62,16 +58,13 @@ const review_photos_query = `DO $$
   END $$;
   `;
 
-const check_reviews_meta = `SELECT CASE WHEN EXISTS(SELECT 1 FROM reviews_meta) THEN 1 ELSE 0 END;`
+const check_reviews_meta = 'SELECT CASE WHEN EXISTS(SELECT 1 FROM reviews_meta) THEN 1 ELSE 0 END;'
 
 //get all the product ids
-const products_query = `SELECT DISTINCT product_id FROM characteristics;`;
+const products_query = 'SELECT DISTINCT product_id FROM characteristics;';
 
 const reviews_meta_query = (product_id) => {
-  return {text: `INSERT INTO reviews_meta(id)
-  VALUES($1)
-  ON CONFLICT DO NOTHING;
-  `,
+  return {text: 'INSERT INTO reviews_meta(id) VALUES($1) ON CONFLICT DO NOTHING;',
   values: [product_id]};
 };
 
